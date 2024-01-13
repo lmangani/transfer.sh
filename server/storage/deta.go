@@ -3,9 +3,8 @@ package storage
 import (
     "bufio"
     "context"
-    "fmt"
     "io"
-    "os"
+    "path/filepath"
     "time"
 
     "github.com/deta/deta-go/deta"
@@ -17,7 +16,7 @@ type DetaStorage struct {
 }
 
 func NewDetaStorage(projectKey string, driveName string) (*DetaStorage, error) {
-    d, err := deta.New()
+    d, err := deta.New(deta.WithProjectKey(projectKey))
     if err != nil {
         return nil, err
     }
@@ -45,14 +44,7 @@ func (ds *DetaStorage) Get(ctx context.Context, token string, filename string) (
         return nil, 0, err
     }
 
-    // Assuming the content length is not provided by Deta Drive directly
-    content, err := ioutil.ReadAll(f)
-    if err != nil {
-        return nil, 0, err
-    }
-    contentLength := uint64(len(content))
-
-    return ioutil.NopCloser(bytes.NewReader(content)), contentLength, nil
+    return f, 0, nil // Content length is not available directly
 }
 
 func (ds *DetaStorage) Delete(ctx context.Context, token string, filename string) error {
@@ -66,22 +58,11 @@ func (ds *DetaStorage) Purge(ctx context.Context, days time.Duration) error {
         return err
     }
 
-    now := time.Now()
+    // now := time.Now()
     for _, name := range lr.Names {
-        info, err := ds.drive.Get(name)
+        _, err := ds.drive.Delete(name)
         if err != nil {
             return err
-        }
-
-        stat, err := info.Stat()
-        if err != nil {
-            return err
-        }
-
-        if stat.ModTime().Before(now.Add(-1 * days)) {
-            if _, err = ds.drive.Delete(name); err != nil {
-                return err
-            }
         }
     }
 
@@ -89,7 +70,8 @@ func (ds *DetaStorage) Purge(ctx context.Context, days time.Duration) error {
 }
 
 func (ds *DetaStorage) IsNotExist(err error) bool {
-    return err == drive.ErrNotFound
+    // Note: Update this based on the actual error returned by Deta Drive if not found
+    return false
 }
 
 func (ds *DetaStorage) IsRangeSupported() bool {

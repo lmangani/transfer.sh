@@ -12,6 +12,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.13.24
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.11.67
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.33.1
+	github.com/deta/deta-go v1.1.0
 	github.com/dutchcoders/go-clamd v0.0.0-20170520113014-b970184f4d9e
 	github.com/dutchcoders/go-virustotal v0.0.0-20140923143438-24cc8e6fa329
 	github.com/dutchcoders/transfer.sh-web v0.0.0-20221119114740-ca3a2621d2a6
